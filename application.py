@@ -7,10 +7,14 @@ Author: Scott Rodkey - rodkeyscott@gmail.com
 Step-by-step tutorial: https://medium.com/@rodkey/deploying-a-flask-application-on-aws-a72daba6bb80
 '''
 
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, Response
 from application import db
 from application.models import Juice
 from application.forms import JuiceDBInfo
+
+import simplejson
+from sqlobject import *
+
 
 # Elastic Beanstalk initalization
 application = Flask(__name__)
@@ -46,5 +50,26 @@ def fetchJuices():
         db.session.rollback()
     return render_template('results.html', results=query_db)
 
+@application.route('/juicejson',methods=['GET','POST'])
+def fetchJuiceJson():
+    try:
+        query_db = Juice.query.order_by(Juice.juice_index.desc())
+        juices_as_dict =[]
+
+        for q in query_db:
+            juice_as_dict = {
+                'id':q.id,
+                'juice_index':q.juice_index,
+                'juice_name':q.juice_name,
+                'nicotine':q.nicotine,
+                'type':q.type
+            }
+            juices_as_dict.append(juice_as_dict)
+        db.session.close()
+    except:
+        db.session.rollback()
+    resp = Response(simplejson.dumps(juices_as_dict),status=200,mimetype='application/json')
+    return resp
+    
 if __name__ == '__main__':
     application.run(host='0.0.0.0')
