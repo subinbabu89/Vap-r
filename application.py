@@ -9,8 +9,8 @@ Step-by-step tutorial: https://medium.com/@rodkey/deploying-a-flask-application-
 
 from flask import Flask, render_template, request, jsonify
 from application import db
-from application.models import Data, Juice
-from application.forms import RetrieveDBInfo,JuiceDBInfo
+from application.models import Juice
+from application.forms import JuiceDBInfo
 
 # Elastic Beanstalk initalization
 application = Flask(__name__)
