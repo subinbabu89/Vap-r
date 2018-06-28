@@ -1,5 +1,6 @@
 from application import db
-from application.models import Data
+# from application.models import Data
+from application.models import Juice
 
 db.create_all()
 
