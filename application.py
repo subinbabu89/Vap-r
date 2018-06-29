@@ -9,7 +9,7 @@ Step-by-step tutorial: https://medium.com/@rodkey/deploying-a-flask-application-
 
 from flask import Flask, render_template, request, jsonify, Response
 from application import db
-from application.models import Juice,Flavor
+from application.models import Juice,Flavor,Job
 from application.forms import JuiceDBInfo
 
 import simplejson
@@ -100,6 +100,37 @@ def fetchJuiceJson():
 def insertJuice():
     juice = request.json
     data_entered = Juice(juice['name'],juice['description'],juice['rating'],juice['pgvg_rating'],juice['type'],juice['nicotine'],juice['ingredients'])
+    try:
+        db.session.add(data_entered)
+        db.session.commit()
+        db.session.close()
+    except:
+        db.session.rollback()
+    return "Success"
+
+@application.route('/jobjson',methods=['GET','POST'])
+def fetchJobJson():
+    try:
+        query_db = Job.query.order_by(Job.id.desc())
+        jobs_as_dict =[]
+
+        for q in query_db:
+            job_as_dict = {
+                'job_name' : q.job_name,
+                'started_by' : q.started_by,
+                'time_to_complete' : q.time_to_complete
+            }
+            jobs_as_dict.append(job_as_dict)
+        db.session.close()
+    except:
+        db.session.rollback()
+    resp = Response(simplejson.dumps(jobs_as_dict),status=200,mimetype='application/json')
+    return resp
+
+@application.route('/putJob', methods = ['POST'])
+def insertJob():
+    job = request.json
+    data_entered = Job(job['job_name'],job['started_by'],job['time_to_complete'])
     try:
         db.session.add(data_entered)
         db.session.commit()

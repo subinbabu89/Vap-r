@@ -36,4 +36,18 @@ class Juice(db.Model):
         self.ingredients = ingredients
 
     def __repr__(self):
-        return '<Juice %i %r %i %r>' % (self.name,self.description,self.nicotine,self.type)
+        return '<Juice %r %r %r %r>' % (self.name,self.description,self.nicotine,self.type)
+
+class Job(db.Model):
+    id = db.Column(db.Integer,primary_key=True)
+    job_name = db.Column(db.String(255),index=True,unique=True)
+    started_by = db.Column(db.String(255),index=True,unique=True)
+    time_to_complete = db.Column(db.Integer,primary_key=True)
+
+    def __init__(self,job_name,started_by,time_to_complete):
+        self.job_name = job_name
+        self.started_by = started_by
+        self.time_to_complete = time_to_complete
+
+    def __repr__(self):
+        return '<Job %r %r %i>' % (self.job_name,self.started_by,self.time_to_complete)
