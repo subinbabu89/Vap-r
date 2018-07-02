@@ -22,6 +22,8 @@ application.debug=True
 # change this to your own value
 application.secret_key = 'cC1YCIWOj9GgWspgNEo2'   
 
+
+# Root / Home page
 @application.route('/', methods=['GET', 'POST'])
 @application.route('/index', methods=['GET', 'POST'])
 def index():
@@ -39,17 +41,37 @@ def index():
 
     return render_template('index.html', formjuice = formjuice)
 
+# View flavors page
 @application.route('/flavors', methods=['GET', 'POST'])
 def fetchFlavors():
     try:
-        query_db = Juice.query.order_by(Juice.juice_index.desc())
+        query_db = Flavor.query.order_by(Flavor.flavor_index.desc())
         for q in query_db:
-            print(q.notes)
+            print(q.flavor_name)
         db.session.close()
-    except:
+    except Exception as ex:
+        template = "An exception of type {0} occurred. Arguments:\n{1!r}"
+        message = template.format(type(ex).__name__, ex.args)
+        print message
         db.session.rollback()
-    return render_template('results.html', results=query_db)
+    return render_template('results_flavors.html', results=query_db)
 
+# View Juices page
+@application.route('/juices', methods=['GET', 'POST'])
+def fetchJuices():
+    try:
+        query_db = Juice.query.order_by(Juice.id.desc())
+        for q in query_db:
+            print(q.name)
+        db.session.close()
+    except Exception as ex:
+        template = "An exception of type {0} occurred. Arguments:\n{1!r}"
+        message = template.format(type(ex).__name__, ex.args)
+        print message
+        db.session.rollback()
+    return render_template('results_juices.html', results=query_db)
+
+# Fetch Flavor API
 @application.route('/flavorjson',methods=['GET','POST'])
 def fetchFlavorJson():
 
@@ -72,6 +94,7 @@ def fetchFlavorJson():
     resp = Response(simplejson.dumps(flavors_as_dict),status=200,mimetype='application/json')
     return resp
 
+# Fetch Juice API
 @application.route('/juicejson',methods=['GET','POST'])
 def fetchJuiceJson():
     try:
@@ -96,18 +119,29 @@ def fetchJuiceJson():
     resp = Response(simplejson.dumps(juices_as_dict),status=200,mimetype='application/json')
     return resp
 
+# Insert Juice API
 @application.route('/putJuice', methods = ['POST'])
 def insertJuice():
     juice = request.json
-    data_entered = Juice(juice['name'],juice['description'],juice['rating'],juice['pgvg_rating'],juice['type'],juice['nicotine'],juice['ingredients'])
+    data_entered = Juice(juice['juices'],juice['description'],juice['rating'],juice['pgvg_rating'],juice['flavors'],juice['nicotine'],juice['ingredients'])
     try:
         db.session.add(data_entered)
         db.session.commit()
         db.session.close()
-    except:
+    except Exception as ex:
+        template = "An exception of type {0} occurred. Arguments:\n{1!r}"
+        message = template.format(type(ex).__name__, ex.args)
+        print message
         db.session.rollback()
+        errorresponse={
+            'type':type(ex).__name__,
+            'args':ex.args
+        }
+        resp = Response(simplejson.dumps(errorresponse), status=200, mimetype='application/json')
+        return resp
     return "Success"
 
+# Fetch Jobs API
 @application.route('/jobjson',methods=['GET','POST'])
 def fetchJobJson():
     try:
@@ -127,6 +161,7 @@ def fetchJobJson():
     resp = Response(simplejson.dumps(jobs_as_dict),status=200,mimetype='application/json')
     return resp
 
+# Insert Job API
 @application.route('/putJob', methods = ['POST'])
 def insertJob():
     job = request.json
@@ -136,6 +171,25 @@ def insertJob():
         db.session.commit()
         db.session.close()
     except:
+        db.session.rollback()
+    return "Success"
+
+# Bulk import juice API
+@application.route('/bulkputJuice', methods = ['POST'])
+def insertBulkJuice():
+    juices = request.json
+    try:
+        for juice in juices:
+            print juice
+            data_entered = Juice(juice['juices'],juice['description'],juice['rating'],juice['pgvg_rating'],juice['flavors'],juice['nicotine'],juice['ingredients'])
+            db.session.add(data_entered)
+            db.session.commit()
+        print "SUCCESSFUL INSERT"
+        db.session.close()
+    except Exception as ex:
+        template = "An exception of type {0} occurred. Arguments:\n{1!r}"
+        message = template.format(type(ex).__name__, ex.args)
+        print message
         db.session.rollback()
     return "Success"
 

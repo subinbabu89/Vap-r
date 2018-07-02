@@ -19,7 +19,7 @@ class Flavor(db.Model):
 class Juice(db.Model):
     id = db.Column(db.Integer,primary_key=True)
     name = db.Column(db.String(255),index=True,unique=True)
-    description = db.Column(db.String(255),index=True,unique=True)
+    description = db.Column(db.String(255),index=True)
     rating = db.Column(db.String(255),index=True)
     pgvg_rating = db.Column(db.String(255),index=True)
     type = db.Column(db.String(255),index=True)
@@ -42,7 +42,7 @@ class Job(db.Model):
     id = db.Column(db.Integer,primary_key=True)
     job_name = db.Column(db.String(255),index=True,unique=True)
     started_by = db.Column(db.String(255),index=True,unique=True)
-    time_to_complete = db.Column(db.Integer,primary_key=True)
+    time_to_complete = db.Column(db.Integer)
 
     def __init__(self,job_name,started_by,time_to_complete):
         self.job_name = job_name
@@ -51,3 +51,21 @@ class Job(db.Model):
 
     def __repr__(self):
         return '<Job %r %r %i>' % (self.job_name,self.started_by,self.time_to_complete)
+
+class User(db.Model):
+    id = db.Column(db.Integer,primary_key=True)
+    username = db.Column(db.String(255),index=True,unique=True)
+    fname = db.Column(db.String(255),index=True)
+    lname = db.Column(db.String(255),index=True)
+    email = db.Column(db.String(255),index=True,unique=True)
+    password = db.Column(db.String(255),index=True)
+
+    def __init__(self,username,fname,lname,email,password):
+        self.username = username
+        self.fname = fname
+        self.lname = lname
+        self.email = email
+        self.password = password
+
+    def __repr__(self):
+        return '<User %r %r %r>' % (self.username,self.email,self.fname)
