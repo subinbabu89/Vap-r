@@ -123,7 +123,7 @@ def fetchJuiceJson():
 @application.route('/putJuice', methods = ['POST'])
 def insertJuice():
     juice = request.json
-    data_entered = Juice(juice['juices'],juice['description'],juice['rating'],juice['pgvg_rating'],juice['flavors'],juice['nicotine'],juice['ingredients'])
+    data_entered = Juice(juice['name'],juice['description'],juice['rating'],juice['pgvg_rating'],juice['type'],juice['nicotine'],juice['ingredients'])
     try:
         db.session.add(data_entered)
         db.session.commit()
